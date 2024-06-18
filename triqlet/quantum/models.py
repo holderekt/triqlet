@@ -1,21 +1,32 @@
-from qiskit.circuit import ParameterVector
+
 from qiskit.circuit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.circuit.library import RealAmplitudes
 from abc import ABC, abstractmethod
 from .encoders import *
 import numpy as np
 from typing import List
 from torch import nn
+import torch
 from qiskit.primitives import Sampler
 from qiskit_machine_learning.neural_networks import SamplerQNN, EstimatorQNN
 from qiskit_machine_learning.connectors import TorchConnector
 from IPython.display import display
-
-
+from .layers import QuantumLayer
 
 
 class QuantumSamplerModel(nn.Module):
-    def __init__(self, circ_qubits, encoder, ansatz, shots, measurement):
+    """Modular quantum torch layer based on sampling measurements
+    """
+    def __init__(self, circ_qubits : int, encoder : QuantumCircuit , ansatz : QuantumCircuit, shots : int, measurement : List[int]):
+        """Create a QuantumCircuit with sampling mesurement based on classical data circuit encoding and a variational quantum circuit
+        with learnable parameters
+
+        Args:
+            circ_qubits (int): Number of qubits in circuit
+            encoder (QuantumCircuit): Classical data encoder circuit
+            ansatz (QuantumCircuit): Variational quantum circuit with learnable parameters
+            shots (int): Number of measurements
+            measurement (List[int]): Index of measured qubits
+        """
         super(QuantumSamplerModel, self).__init__()
 
         self.encoder = encoder
@@ -51,11 +62,24 @@ class QuantumSamplerModel(nn.Module):
         self.quantum_layer = TorchConnector(self.qnn_net)
 
 
-    def forward(self, anchor):
+    def forward(self, anchor : torch.Tensor) -> torch.Tensor:
+        """Compute QNN ouput using sampling measurements
+
+        Args:
+            anchor (torch.Tensor): Input tensor
+        Returns:
+            torch.Tensor: Output tensor
+        """
         return self.quantum_layer(anchor)[:, :self.output_size]
     
     
     def draw(self, output="mpl", decompose=True):
+        """Quantum circuit visualizazione
+
+        Args:
+            output (str, optional): Visualization backend. Defaults to "mpl".
+            decompose (bool, optional): Visualize layes gate (True) or block representation (False). Defaults to True.
+        """
         if decompose:
             display(self.qnn.decompose().draw(output))
         else:

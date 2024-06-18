@@ -20,13 +20,14 @@ class QuantumLayer(ABC):
 class EncoderLayer(QuantumLayer):
     """Create a quantum encoder circuit from encoder name
     """
-    def __new__(self, circ_qubits : int, apply_qubits : List[int], n_features : int, param_prefix : str, encoder_type : str) -> QuantumCircuit:
+    def __new__(self, circ_qubits : int, apply_qubits : List[int], n_features : int, param_prefix : str, encoder_type : str, barrier : bool) -> QuantumCircuit:
         """Generate a circuit with the specified feature encoder, prefix and number o features
 
         Args:
         n_features (int): Number of input features
         param_prefix (string): String prefix for encoding parameters
         encoder_type (str): Type of encoder to use "y","x", "yz", "amplitude"
+        barrier (bool): Print final barrier
 
         Returns:
             QuantumCircuit: Encoding quantum circuit
@@ -41,7 +42,8 @@ class EncoderLayer(QuantumLayer):
         m = self.functions[encoder_type](n_features, param_prefix)
         q = QuantumCircuit(circ_qubits)
         q.append(m, qargs=apply_qubits)
-        q.barrier()
+        if barrier:
+            q.barrier()
         
         return q
 
@@ -58,7 +60,8 @@ class RealAmplitudeLayer(QuantumLayer):
             entanglement : str, 
             reps : int, 
             param_prefix : str, 
-            layer_name : str) -> QuantumCircuit:
+            layer_name : str,
+            barrier : bool) -> QuantumCircuit:
         """Generate a customized RealAmplitudes ansatz
 
         Args:
@@ -68,6 +71,7 @@ class RealAmplitudeLayer(QuantumLayer):
             reps (int): Ansatz repetition (Refer to QiskitMachineLearning documentation)
             param_prefix (str):  String prefix for learnable ansatz parameters
             layer_name (str): Visible layer name
+            barrier (bool): Print final barrier
 
         Returns:
             QuantumCircuit: Ansatz circuit applied on choesen qubits
@@ -76,7 +80,9 @@ class RealAmplitudeLayer(QuantumLayer):
         ansatz = RealAmplitudes(len(apply_qubits), entanglement, reps, parameter_prefix=param_prefix, name=layer_name)
         qc = QuantumCircuit(circ_qubits)
         qc = qc.compose(ansatz, apply_qubits)
-        qc.barrier()
+
+        if barrier:
+            qc.barrier()
 
 
         return qc
@@ -92,7 +98,8 @@ class PoolingLayer(QuantumLayer):
             source_qubits : list, 
             target_qubits : list,
             param_prefix : str, 
-            layer_name : str) -> QuantumCircuit:
+            layer_name : str,
+            barrier : bool) -> QuantumCircuit:
         """Generate a pooling circuit from source qubits to target qubits
 
         Args:
@@ -101,6 +108,7 @@ class PoolingLayer(QuantumLayer):
             target_qubits (list): Target qubits of the pooling layer (the ones where information is condensed)
             param_prefix (str): Pooling rotation parameters prefix
             layer_name (str): Visible layer name
+            barrier (bool): Print final barrier
 
         Returns:
             QuantumCircuit: Pooling operator from source qubits to target qubits
@@ -124,7 +132,9 @@ class PoolingLayer(QuantumLayer):
 
         aqc = QuantumCircuit(circ_qubits)
         aqc.append(qc, range(circ_qubits))
-        aqc.barrier()
+        
+        if barrier:
+            aqc.barrier()
 
         return aqc
     
@@ -138,7 +148,8 @@ class SwapTestLayer(QuantumLayer):
             target1_qubits : list, 
             target2_qubits : list,
             ancilla_qubit : int,
-            layer_name : str) -> QuantumCircuit:
+            layer_name : str,
+            barrier : bool) -> QuantumCircuit:
         """Genearate swap test circuit with ancilla controll and target1 and target2 qubits
 
         Args:
@@ -147,9 +158,10 @@ class SwapTestLayer(QuantumLayer):
             target2_qubits (list): Swap operator second lines
             ancilla_qubit (int): Control qubit for swap operation
             layer_name (str): Visible layer name
+            barrier (bool): Print final barrier
 
         Returns:
-            QuantumCircuit: _description_
+            QuantumCircuit: Swap circuit 
         """
         
         qc = QuantumCircuit(circ_qubits, name=layer_name)
@@ -161,7 +173,9 @@ class SwapTestLayer(QuantumLayer):
 
         aqc = QuantumCircuit(circ_qubits)
         aqc.append(qc, range(circ_qubits))
-        aqc.barrier()
+
+        if barrier:
+            aqc.barrier()
 
         return aqc
 
@@ -170,14 +184,14 @@ class SwapTestLayer(QuantumLayer):
 class QuantumSequential(QuantumLayer):
     """Sequential compositor of QuantumLayers
     """
-    def __new__(self, *layers: QuantumLayer) -> QuantumLayer:
+    def __new__(self, *layers: QuantumCircuit) -> QuantumCircuit:
         """Compose multiple QuantumLayer in a single circuit
 
         Args:
-            *layers (QuantumLayer): Quantum laayer to be sequentially concatened
+            *layers (QuantumCircuit): Quantum laayer to be sequentially concatened
 
         Returns:
-            QuantumLayer: Composed quantum layer
+            QuantumCircuit: Composed quantum layer
         """
         nq = layers[0].num_qubits
         qc = QuantumCircuit(nq)

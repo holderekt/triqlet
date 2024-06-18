@@ -1,1 +1,2 @@
 # TriQlet: A PyTorch and Qiskit abstraction layer for Triplet Loss and Hybrid Quantum Learning
+## :warning: This repository is still in development, there could be a lot of structural, sintactic and modular changes :warning:
