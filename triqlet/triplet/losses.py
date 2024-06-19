@@ -12,6 +12,8 @@ import torch
 
 
 class TripletLoss(nn.Module):
+    """ Main triplet learning loss using distances of anchor example from positive and negative examples
+    """
     def __init__(self, margin=0.2):
         super(TripletLoss, self).__init__()
         self.margin = margin

@@ -13,10 +13,21 @@ from ..utils import RotationScaler
 
 
 class CNNAnglesEmbeddingNet(nn.Module):
-    def __init__(self, embedding_size):
+    """ Simple CNN to embedd an image to a specified size vector, expects an images in the format
+    (1x28x28) with only one single color channel. The ouput vector will be normalized in the range [0,2pi] for a feasible input 
+    to quantum neural networks with angles encodings.
+    """
+    def __init__(self, embedding_size : int):
+        """Initiate class with an output embedding size 
+
+        Args:
+            embedding_size (int): Ouput embedding size 
+        """
         super(CNNAnglesEmbeddingNet, self).__init__()
 
         self.embedding_size = embedding_size
+
+        # Main convolution blocks
         
         self.conv_1 = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=32, kernel_size=(5,5)),
@@ -37,11 +48,15 @@ class CNNAnglesEmbeddingNet(nn.Module):
 
         self.flatten = nn.Flatten()
 
+        # Tensor dimensionality reduction
+
         self.reduction = nn.Sequential(
             nn.Linear(in_features=576, out_features=120),
             nn.ReLU(),
             nn.Linear(in_features=120, out_features=embedding_size)
         )
+
+        # Scaling for quantum encoding networks
 
         self.scaler = RotationScaler(scale=2*torch.pi)
 
