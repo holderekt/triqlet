@@ -1,3 +1,12 @@
+"""
+Filename: triqlet/quantum/encoders.py
+Author: Ivan Diliso
+License: MIT License
+
+This software is licensed under the MIT License.
+"""
+
+
 from qiskit_machine_learning.circuit.library import RawFeatureVector
 from qiskit.circuit import ParameterVector
 from qiskit.circuit import QuantumCircuit

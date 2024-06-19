@@ -1,3 +1,12 @@
+"""
+Filename: triqlet/quantum/layers.py
+Author: Ivan Diliso
+License: MIT License
+
+This software is licensed under the MIT License.
+"""
+
+
 from qiskit.circuit import ParameterVector
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import RealAmplitudes

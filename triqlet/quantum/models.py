@@ -1,3 +1,11 @@
+"""
+Filename: triqlet/quantum/models.py
+Author: Ivan Diliso
+License: MIT License
+
+This software is licensed under the MIT License.
+"""
+
 
 from qiskit.circuit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from abc import ABC, abstractmethod

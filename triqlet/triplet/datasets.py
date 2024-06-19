@@ -1,3 +1,13 @@
+"""
+Filename: triqlet/triplet/datasets.py
+Author: Ivan Diliso
+License: MIT License
+
+This software is licensed under the MIT License.
+"""
+
+
+
 import numpy as np
 from torch.utils.data import Dataset
 from torchvision import transforms
