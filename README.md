@@ -33,7 +33,7 @@ TriQlet also provides general structure, training function, losses, modules and 
 The main class for triplet loss learning consist needs two main modules, an embedder net, that takes in input an example and produces a new representation of that example (from example, a CNN that converts an image to a flatten vector) and a distance net, that takes in input two examples and produces the distance between them. The main TripletNet then takes as input a triplet of (anchor, positive, negative) examples, uses the embedding model to create the embedding and then uses these embedding to compute the distance between (anchor, positive) and (anchor, negative) these tensor can be used with the TripleLoss to compute the loss of the model.
 
 <p align="center">
-<img src="./images/triplet.png" width="600" height="auto">
+<img src="./images/triplet.jpg" width="600" height="auto">
 </p>
 So for example, a simple net that creates 8 sized embedding for 1000 sized feature vectors, with Euclidean distance calculation:
 
