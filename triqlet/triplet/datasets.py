@@ -6,8 +6,6 @@ License: MIT License
 This software is licensed under the MIT License.
 """
 
-
-
 import numpy as np
 from torch.utils.data import Dataset
 from torchvision import transforms
@@ -38,16 +36,18 @@ class TripletDataset(Dataset, ABC):
 
 
 class TripletImageDataset(TripletDataset):
-    """_summary_
+    """Image data loader with ouput transform operator and random sampling for negative and positive examples.
+    Produces a random triples consisting of (anchor, positive, negative), the class for the negative sample is chosen at random
+    from a uniform probability distribution.
     """
     def __init__(self, data : np.array, target : np.array, num_classes : int, output_transform : transforms):
-        """_summary_
+        """Creates calss from numpy data matrix (K,N,M) K training samples of images of size (MxN) 
 
         Args:
-            data (np.array): _description_
-            target (np.array): _description_
-            num_classes (int): _description_
-            output_transform (transforms): _description_
+            data (np.array): Data matrix of size (K,N,M) K training samples of images of size (MxN) 
+            target (np.array): Classes of each eaxample of size (K,1)
+            num_classes (int): Number of different classes
+            output_transform (transforms): Torch transformation applyed before output
         """
         self.data = data
         self.target = target
@@ -59,25 +59,25 @@ class TripletImageDataset(TripletDataset):
 
 
     def __getitem__(self, idx : int) -> torch.Tensor:
-        """_summary_
+        """Produce a triplet of (anchor, positive, negative) examples
 
         Args:
-            idx (int): _description_
+            idx (int): Index of anchor example
 
         Returns:
-            torch.Tensor: _description_
+            torch.Tensor: Random sampling triples (anchor, positive, negative)
         """
         return self.get_anchor(idx), self.get_positive(idx), self.get_negative(idx)
     
 
     def get_anchor(self, idx : int) -> torch.Tensor:
-        """_summary_
+        """Get anchor data 
 
         Args:
-            idx (int): _description_
+            idx (int): Index of anchor sample
 
         Returns:
-            torch.Tensor: _description_
+            torch.Tensor: Transformed image
         """
         if self.apply_transform:
             return self.output_transform(self.data[idx])
@@ -86,29 +86,30 @@ class TripletImageDataset(TripletDataset):
     
 
     def get_positive(self,idx : int) -> torch.Tensor:
-        """_summary_
+        """Generate an example from the same class of the anchor example
 
         Args:
-            idx (int): _description_
+            idx (int): Index of anchor sample
 
         Returns:
-            torch.Tensor: _description_
+            torch.Tensor: Transformed image
         """
         i = np.random.choice(self.classes[self.target[idx]][0])
         if self.apply_transform:
             return self.output_transform(self.data[i])
         else:
             return self.data[idx]
-    
+
 
     def get_negative(self,idx : int) -> torch.Tensor:
-        """_summary_
+        """Generate an example from a different class of the anchor example chosen form uniform probability distribution
+        among classes.
 
         Args:
-            idx (int): _description_
+            idx (int): Index of anchor sample
 
         Returns:
-            torch.Tensor: _description_
+            torch.Tensor: Transformed image
         """
         i = np.random.choice(self.classes[self.target[idx]][1])
         if self.apply_transform:
@@ -118,27 +119,27 @@ class TripletImageDataset(TripletDataset):
 
 
     def get_order(self) -> np.array:
-        """_summary_
+        """Sort examples by class
 
         Returns:
-            np.array: _description_
+            np.array: Sorted examples
         """
         return self.target.argsort()
 
 
     def get_flatten(self) -> np.array:
-        """_summary_
+        """Return dataset of flatten image examples
 
         Returns:
-            np.array: _description_
+            np.array: Flatten dataset
         """
         return self.data.reshape((self.data.shape[0], self.data.shape[1]**2))
 
 
     def __len__(self) -> int:
-        """_summary_
+        """Number of training examples
 
         Returns:
-            int: _description_
+            int: Number of training examples
         """
         return self.len
