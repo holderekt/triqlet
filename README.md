@@ -8,8 +8,6 @@
 4. [How to crate a hybrid quantum triplet loss model](#hql)
 
 
-
-
 ## Introduction <a name="introduction"></a>
 
 Simple and modular Python library I wrote to ease the development of my Qiskit quantum circuits in the domain of metric learning (triplet loss with siamese networks). The main goal of this library is treating a quantum model like a PyTorch module, using sequential stacking to compose a circuit made of multiple layers. This library can make you write Qiskit circuit whitout touching the Qiskit library and generate a QuantumLayer that extends Pytorch nn.Module, ready to use in your PyTorch code. Here are some of the QuantumLayer already coded in the library:
